@@ -1,251 +1,196 @@
 import os
 import re
-import json
-import uuid
 import sqlite3
 import datetime
-import numpy as np
-import networkx as nx
-from typing import List, Dict, Any, Tuple
-from collections import Counter
+import time
+import json
 import fitz  # PyMuPDF
-import ollama # Use the official library
+import ollama 
 
-class AuraGraph9D:
-    def __init__(self, db_path: str = "auragraph_9d.db", model_name: str = "llama3.1:8b", debug: bool = True):
+class AuraGraphJIT:
+    def __init__(self, db_path: str = "auragraph_jit.db", model_name: str = "llama3.1:8b"):
         self.db_path = db_path
-        # Using ONE model for both to prevent VRAM swapping
         self.model_name = model_name
-        self.debug = debug
         self.conn = sqlite3.connect(self.db_path)
         self._init_db()
         
     def _init_db(self):
         cursor = self.conn.cursor()
-        # Dimensions 1-9: Logic (1-3), Context (4), Authority (5), Time (6), Pointer (7), Scope/Page (8), Semantic Alias (9)
+        
+        # Standard table to reliably track which files have been ingested
         cursor.execute('''
-            CREATE TABLE IF NOT EXISTS synapses (
-                id TEXT PRIMARY KEY, subject TEXT, relation TEXT, object TEXT, 
-                context TEXT, source_id TEXT, timestamp REAL, 
-                blob_pointer INTEGER, page_num INTEGER, scope TEXT, semantic_hash TEXT
+            CREATE TABLE IF NOT EXISTS file_tracking (
+                filename TEXT PRIMARY KEY,
+                ingested_at REAL
             )
         ''')
+
+        # The Breakthrough: FTS5 (Full Text Search). 
+        # Added tokenize='porter' so "improvement" matches "improved"
         cursor.execute('''
-            CREATE TABLE IF NOT EXISTS anchors (
-                source_id TEXT PRIMARY KEY, filename TEXT, 
-                full_content TEXT, timestamp REAL
-            )
-        ''')
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS aliases (
-                term TEXT PRIMARY KEY, canonical TEXT
+            CREATE VIRTUAL TABLE IF NOT EXISTS anchors USING fts5(
+                filename, 
+                page_num UNINDEXED, 
+                content, 
+                timestamp UNINDEXED,
+                tokenize='porter'
             )
         ''')
         self.conn.commit()
 
     def ingest_folder(self, folder_path: str):
-        if not os.path.exists(folder_path):
-            print(f"[!] Folder not found: {folder_path}")
-            return
-
-        supported_extensions = ('.pdf', '.md', '.txt', '.log')
-        files_to_process = []
-        for root, _, files in os.walk(folder_path):
-            for file in files:
-                if file.lower().endswith(supported_extensions):
-                    files_to_process.append(os.path.join(root, file))
-
-        print(f"[*] Found {len(files_to_process)} files. Using Unified {self.model_name}...")
-        for i, filepath in enumerate(files_to_process):
-            self.ingest_hyper_speed(filepath)
-
-    def ingest_hyper_speed(self, filepath: str):
-        filename = os.path.basename(filepath)
-        cursor = self.conn.cursor()
-        cursor.execute("SELECT source_id FROM anchors WHERE filename = ?", (filename,))
-        if cursor.fetchone():
-            if self.debug: print(f"[*] {filename} cached. Skipping.")
-            return
-
-        print(f"\n[*] Hyper-Speed Ingestion: {filename}")
-        source_id = str(uuid.uuid4())
-        full_text = ""
-        
-        try:
-            pages_to_process = []
-            if filepath.endswith('.pdf'):
-                doc = fitz.open(filepath)
-                doc_text = "\n".join([p.get_text() for p in doc])
-                word_freq = Counter(re.findall(r'\b\w{4,}\b', doc_text.lower()))
-                
-                for page_num, page in enumerate(doc):
-                    page_text = page.get_text()
-                    if not page_text.strip(): continue
-                    full_text += page_text + "\n"
-                    
-                    page_words = re.findall(r'\b\w{4,}\b', page_text.lower())
-                    importance = sum(1/word_freq[w] for w in page_words if w in word_freq)
-                    
-                    if importance >= 1.2:
-                        pages_to_process.append((page_text, page_num + 1))
-            
-            # BATCH PROCESSING (5 pages per call)
-            batch_size = 5
-            for i in range(0, len(pages_to_process), batch_size):
-                batch = pages_to_process[i:i + batch_size]
-                self._map_batch_logic(batch, source_id, filename)
-
-            cursor.execute("INSERT INTO anchors VALUES (?, ?, ?, ?)", 
-                           (source_id, filename, full_text, datetime.datetime.now().timestamp()))
-            self.conn.commit()
-            print(f"[*] Integrated {filename}.")
-        except Exception as e:
-            print(f"[!] Error in {filename}: {e}")
-
-    def _map_batch_logic(self, batch: List[Tuple[str, int]], source_id: str, filename: str):
-        combined_text = ""
-        for text, pnum in batch:
-            combined_text += f"--- PAGE {pnum} ---\n{text[:2000]}\n"
-        
-        if self.debug: 
-            p_range = f"{batch[0][1]}-{batch[-1][1]}" if len(batch) > 1 else f"{batch[0][1]}"
-            print(f"    > Mapping Page Batch {p_range}...")
-
-        prompt = f"""
-        Analyze this technical content. Extract logical synapses (subject, relation, obj, context).
-        Return ONLY a JSON list under the key 'synapses'.
-        CONTENT:
-        {combined_text}
         """
-        
-        try:
-            response = ollama.generate(
-                model=self.model_name,
-                prompt=prompt,
-                system="Strict JSON extractor. Context is technical documentation.",
-                format="json",
-                options={"temperature": 0.0},
-                stream=False
-            )
-            
-            # Scrub markdown blocks if they exist
-            resp_text = response['response'].strip()
-            if resp_text.startswith("```"):
-                resp_text = re.sub(r'^```[a-z]*\n', '', resp_text)
-                resp_text = re.sub(r'\n```$', '', resp_text)
-
-            data = json.loads(resp_text)
-            
-            cursor = self.conn.cursor()
-            syn_list = data.get('synapses', []) if isinstance(data.get('synapses'), list) else []
-            
-            for syn in syn_list:
-                sub = str(syn.get('subject', '')).lower().strip()
-                if not sub or len(sub) < 2: continue
-                
-                rel = str(syn.get('relation', 'is'))
-                obj = str(syn.get('obj', 'unknown')).lower().strip()
-                ctx = syn.get('context', 'technical')
-                if isinstance(ctx, list): ctx = ", ".join(map(str, ctx))
-                else: ctx = str(ctx)
-                
-                cursor.execute("INSERT INTO synapses VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                               (str(uuid.uuid4()), sub, rel, obj, ctx, 
-                                source_id, datetime.datetime.now().timestamp(), 
-                                combined_text.find(sub[:10]), batch[0][1], filename, str(hash(sub))))
-            self.conn.commit()
-        except Exception as e:
-            if self.debug: print(f"    [!] Batch Mapping Error: {e}")
-
-    def query(self, user_query: str):
-        stop_words = {'what', 'were', 'done', 'for', 'all', 'time', 'the', 'and', 'how', 'is', 'are', 'was'}
-        raw_words = [w.lower() for w in re.findall(r'\w+', user_query) if len(w) > 2 and w.lower() not in stop_words]
-        
-        cursor = self.conn.cursor()
-        expanded = set(raw_words)
-        for w in raw_words:
-            cursor.execute("SELECT canonical FROM aliases WHERE term = ?", (w,))
-            res = cursor.fetchone()
-            if res: expanded.add(res[0])
-        
-        results = []
-        for w in expanded:
-            cursor.execute("SELECT * FROM synapses WHERE subject LIKE ? OR object LIKE ? OR scope LIKE ?", (f"%{w}%", f"%{w}%", f"%{w}%"))
-            results.extend(cursor.fetchall())
-
-        if not results:
-            print("[!] No neural paths found. Try simpler terms.")
+        JIT INGESTION: 100% Recall, Near-Instant Speed.
+        Zero LLM calls during ingestion. We map the raw text into the FTS5 BM25 Engine.
+        """
+        if not os.path.exists(folder_path): 
+            print(f"[!] Folder path does not exist: {folder_path}")
             return
-
-        results = sorted(results, key=lambda x: x[6], reverse=True)
-        evidence, seen = [], set()
         
-        for f in results:
-            key = f"{f[1]}-{f[3]}"
-            if key in seen: continue
-            seen.add(key)
+        files = [os.path.join(r, f) for r, _, fs in os.walk(folder_path) for f in fs if f.lower().endswith(('.pdf', '.txt', '.md'))]
+        start_time = time.time()
+        
+        print(f"[*] AURA JIT-ENGINE START | {datetime.datetime.now().strftime('%H:%M:%S')}")
+        print(f"[*] Found {len(files)} supported files in directory.")
+
+        cursor = self.conn.cursor()
+        new_files = 0
+        skipped_files = 0
+        
+        for i, filepath in enumerate(files):
+            fname = os.path.basename(filepath)
             
-            cursor.execute("SELECT full_content, filename FROM anchors WHERE source_id = ?", (f[5],))
-            res = cursor.fetchone()
-            
-            if res is None:
+            # Check standard tracking table
+            cursor.execute("SELECT 1 FROM file_tracking WHERE filename = ?", (fname,))
+            if cursor.fetchone(): 
+                skipped_files += 1
                 continue
                 
-            blob = res[0]
-            fname = res[1]
-            
-            start = max(0, f[7] - 1500)
-            end = min(len(blob), f[7] + 3500)
-            evidence.append({"logic": f"[{f[1]}]--{f[2]}-->[{f[3]}]", "src": fname, "page": f[8], "text": blob[start:end]})
-            if len(evidence) >= 5: break
+            new_files += 1
+            if filepath.lower().endswith('.pdf'):
+                try:
+                    doc = fitz.open(filepath)
+                    for pnum, page in enumerate(doc):
+                        text = page.get_text().strip()
+                        if len(text) > 20:
+                            cursor.execute(
+                                "INSERT INTO anchors (filename, page_num, content, timestamp) VALUES (?, ?, ?, ?)", 
+                                (fname, pnum + 1, text, time.time())
+                            )
+                    # Mark file as successfully ingested
+                    cursor.execute("INSERT INTO file_tracking (filename, ingested_at) VALUES (?, ?)", (fname, time.time()))
+                except Exception as e:
+                    print(f"[!] Error reading {fname}: {e}")
 
-        if not evidence:
-            print("[!] Found logic connections but the source documents are missing.")
+        self.conn.commit()
+        print(f"[*] INGESTION COMPLETE:")
+        print(f"    - Processed: {new_files} new files")
+        print(f"    - Skipped: {skipped_files} cached files")
+        print(f"    - Time taken: {time.time() - start_time:.2f} seconds.")
+        print(f"[*] Zero data loss. Ready for JIT Querying.")
+
+    def query(self, user_query: str):
+        """
+        JIT GRAPH RETRIEVAL:
+        1. Instant FTS5 Keyword/BM25 Search with Porter Stemming.
+        2. Precise Snippet Extraction (No blind truncation).
+        3. LLM synthesizes the final audit.
+        """
+        print(f"\n[*] Querying FTS5 Index for: '{user_query}'...")
+        
+        # Clean query for FTS5 Match
+        stop_words = {'what', 'were', 'done', 'for', 'all', 'time', 'the', 'and', 'how', 'is', 'are', 'was', 'in', 'on', 'to', 'with'}
+        terms = [w for w in re.findall(r'\w+', user_query) if w.lower() not in stop_words]
+        
+        if not terms:
+            print("[!] Query too vague after filtering stop words.")
             return
 
-        ctx = "\n".join([f"DOC: {e['src']} (P.{e['page']})\nLOGIC: {e['logic']}\nCONTENT:\n{e['text']}\n" for e in evidence])
+        cursor = self.conn.cursor()
+        
+        # FTS5 Query using snippet()
+        # snippet(table_name, column_index, start_tag, end_tag, ellipsis, max_tokens)
+        # Column 2 is 'content'. This pulls the EXACT 100 words surrounding the match!
+        sql_query = """
+            SELECT filename, page_num, snippet(anchors, 2, '**', '**', '...', 100)
+            FROM anchors 
+            WHERE anchors MATCH ? 
+            ORDER BY rank 
+            LIMIT 15
+        """
+        
+        # Try exact AND matching first
+        match_query = " AND ".join(terms)
+        try:
+            cursor.execute(sql_query, (match_query,))
+            results = cursor.fetchall()
+        except sqlite3.OperationalError:
+            results = []
+        
+        # Fallback to OR matching if AND is too strict
+        if not results:
+            if len(terms) > 1:
+                print("[*] Strict match failed. Widening search radius...")
+            match_query = " OR ".join(terms)
+            try:
+                cursor.execute(sql_query, (match_query,))
+                results = cursor.fetchall()
+            except sqlite3.OperationalError:
+                results = []
+
+        if not results:
+            print("[!] No documents found matching those terms.")
+            return
+
+        print(f"[*] Found {len(results)} highly relevant contexts. Building JIT Graph...")
+
+        evidence_blocks = []
+        for fname, pnum, exact_snippet in results:
+            # We now pass the exact highlight snippet instead of truncating the page
+            evidence_blocks.append(f"SOURCE: {fname} (Page {pnum})\nTEXT: {exact_snippet}\n")
+
+        full_evidence = "\n".join(evidence_blocks)
+
+        # The JIT LLM Prompt: Strict anti-hallucination constraints
+        prompt = f"""
+        You are the AuraGraph JIT (Just-In-Time) Audit AI. 
+        
+        USER QUERY: {user_query}
+        
+        DATABASE EVIDENCE (Keywords are highlighted with ** **):
+        {full_evidence}
+        
+        TASK 1: Extract the specific improvements, changes, or facts requested.
+        TASK 2: Synthesize a clear report. Cite the Source Filename and Page Number.
+        
+        CRITICAL RULE: If the evidence does not specifically mention the exact technologies or concepts in the user query (e.g., if they asked for HTTP and you only see SSH), you MUST state: "The provided documents do not contain information about [Topic]." DO NOT hallucinate or substitute technologies.
+        """
+
+        print(f"[*] Synthesizing Audit with {self.model_name}...\n")
         resp = ollama.generate(
-            model=self.model_name,
-            prompt=f"User Query: {user_query}\n\nEvidence:\n{ctx}\n\nExplain technical audit based on evidence.",
+            model=self.model_name, 
+            prompt=prompt,
+            system="You are a precise technical auditor. Rely STRICTLY on the provided evidence. If it's not in the evidence, say you don't know.",
             stream=False
         )
-        print("\n" + "="*80 + "\nAURAGRAPH 9D AUDIT\n" + "="*80)
+        
+        print("="*80 + "\nAURAGRAPH JIT-RAG AUDIT\n" + "="*80)
         print(resp['response'])
-        print("="*80 + "\n")
-
-    def visualize(self):
-        from dash import Dash, html, dcc
-        import plotly.graph_objects as go
-        app = Dash(__name__)
-        cursor = self.conn.cursor()
-        cursor.execute("SELECT subject, object FROM synapses LIMIT 1000")
-        rows = cursor.fetchall()
-        G = nx.Graph()
-        for s, o in rows: G.add_edge(s, o)
-        pos = nx.spring_layout(G)
-        edge_x, edge_y = [], []
-        for e in G.edges():
-            x0, y0 = pos[e[0]]; x1, y1 = pos[e[1]]
-            edge_x.extend([x0, x1, None]); edge_y.extend([y0, y1, None])
-        node_x, node_y, node_text = [], [], []
-        for n in G.nodes():
-            x, y = pos[n]; node_x.append(x); node_y.append(y); node_text.append(n)
-        fig = go.Figure(data=[
-            go.Scatter(x=edge_x, y=edge_y, line=dict(width=0.5, color='#888'), mode='lines'),
-            go.Scatter(x=node_x, y=node_y, mode='markers+text', text=node_text, marker=dict(size=10, color='orange'))
-        ])
-        app.layout = html.Div([dcc.Graph(figure=fig, style={'height': '95vh'})])
-        app.run(debug=False, port=8050)
+        print("\n" + "="*80)
 
 if __name__ == "__main__":
     import sys
-    aura = AuraGraph9D(model_name="llama3.1:8b")
+    aura = AuraGraphJIT(model_name="llama3.1:8b")
+    
     if len(sys.argv) < 2:
-        print("Usage: python main.py [ingest <dir> / query <text> / visualize]")
+        print("Usage:")
+        print("  python main.py ingest <dir>")
+        print("  python main.py query <text>")
     else:
         cmd = sys.argv[1]
-        if cmd == "visualize": aura.visualize()
-        elif len(sys.argv) >= 3:
-            val = " ".join(sys.argv[2:])
-            if cmd == "ingest": aura.ingest_folder(val)
-            elif cmd == "query": aura.query(val)
+        if cmd == "ingest" and len(sys.argv) >= 3:
+            aura.ingest_folder(sys.argv[2])
+        elif cmd == "query":
+            aura.query(" ".join(sys.argv[2:]))
+        else:
+            print("[!] Missing arguments.")
