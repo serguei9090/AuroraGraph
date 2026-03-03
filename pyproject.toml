@@ -12,6 +12,7 @@ dependencies = [
     "ollama>=0.6.1",
     "plotly>=6.5.2",
     "pymupdf>=1.27.1",
+    "python-dotenv>=1.2.2",
     "scipy>=1.17.1",
 ]
 

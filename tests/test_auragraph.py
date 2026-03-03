@@ -69,25 +69,27 @@ def test_auragraph_evaluation(aura, test_case):
     prediction = aura.predict(query)
 
     num_contexts = len(prediction["context"])
-    latency = prediction["latency_ms"]
-    print(f"  [RETRIEVAL] {num_contexts} context blocks | {latency:.0f} ms")
+    t_retrieval = prediction["retrieval_ms"]
+    t_generation = prediction["generation_ms"]
+    print(f"  [AURORA] {num_contexts} blocks | Retrieval: {t_retrieval:.1f}ms | LLM Gen: {t_generation/1000:.1f}s")
 
     # -- Step 2: Grade with LLM-as-a-Judge ---------------------------------
     scores = evaluate_prediction(prediction)
+    t_judging = scores["judge_ms"]
 
     ctx_score = scores["context_relevance"]["score"]
     faith_score = scores["faithfulness"]["score"]
     ans_score = scores["answer_relevance"]["score"]
     overall = scores["overall_score"]
 
-    print("  [SCORES]")
+    print(f"  [SCORES] Judging Time: {t_judging/1000:.1f}s")
     ctx_r = scores["context_relevance"]["reason"]
     fth_r = scores["faithfulness"]["reason"]
     ans_r = scores["answer_relevance"]["reason"]
-    print(f"    Context Relevance : {ctx_score:.2f}  - {ctx_r}")
-    print(f"    Faithfulness      : {faith_score:.2f}  - {fth_r}")
-    print(f"    Answer Relevance  : {ans_score:.2f}  - {ans_r}")
-    print(f"    Overall (weighted): {overall:.3f}")
+    print(f"    Ctx Rel: {ctx_score:.2f} ({ctx_r})")
+    print(f"    Faith  : {faith_score:.2f} ({fth_r})")
+    print(f"    Ans Rel: {ans_score:.2f} ({ans_r})")
+    print(f"    Overall: {overall:.3f}")
 
     # -- Step 3: Cache result for final report -----------------------------
     RESULTS_CACHE.append({
@@ -95,7 +97,9 @@ def test_auragraph_evaluation(aura, test_case):
         "category": category,
         "query": query,
         "num_contexts": num_contexts,
-        "latency_ms": latency,
+        "t_retrieval_ms": t_retrieval,
+        "t_generation_ms": t_generation,
+        "t_judging_ms": t_judging,
         "context_relevance": ctx_score,
         "faithfulness": faith_score,
         "answer_relevance": ans_score,
@@ -107,18 +111,10 @@ def test_auragraph_evaluation(aura, test_case):
     })
 
     # -- Step 4: Assertions ------------------------------------------------
-    assert ctx_score >= MIN_CONTEXT_RELEVANCE, (
-        f"Context Relevance {ctx_score:.2f} < {MIN_CONTEXT_RELEVANCE}"
-    )
-    assert faith_score >= MIN_FAITHFULNESS, (
-        f"Faithfulness {faith_score:.2f} < {MIN_FAITHFULNESS}"
-    )
-    assert ans_score >= MIN_ANSWER_RELEVANCE, (
-        f"Answer Relevance {ans_score:.2f} < {MIN_ANSWER_RELEVANCE}"
-    )
-    assert overall >= MIN_OVERALL, (
-        f"Overall {overall:.3f} < {MIN_OVERALL}"
-    )
+    assert ctx_score >= MIN_CONTEXT_RELEVANCE
+    assert faith_score >= MIN_FAITHFULNESS
+    assert ans_score >= MIN_ANSWER_RELEVANCE
+    assert overall >= MIN_OVERALL
 
 
 # --- Report Generation (runs after all tests) --------------------------------
@@ -137,7 +133,8 @@ def generate_report(request):
 
         # --- CSV Report ----------------------------------------------------
         fieldnames = [
-            "id", "category", "query", "num_contexts", "latency_ms",
+            "id", "category", "query", "num_contexts", 
+            "t_retrieval_ms", "t_generation_ms", "t_judging_ms",
             "context_relevance", "faithfulness", "answer_relevance",
             "overall", "ctx_reason", "faith_reason", "ans_reason",
             "response_preview",
@@ -153,7 +150,9 @@ def generate_report(request):
         avg_faith = sum(r["faithfulness"] for r in RESULTS_CACHE) / n
         avg_ans = sum(r["answer_relevance"] for r in RESULTS_CACHE) / n
         avg_overall = sum(r["overall"] for r in RESULTS_CACHE) / n
-        avg_latency = sum(r["latency_ms"] for r in RESULTS_CACHE) / n
+        avg_t_ret = sum(r["t_retrieval_ms"] for r in RESULTS_CACHE) / n
+        avg_t_gen = sum(r["t_generation_ms"] for r in RESULTS_CACHE) / n
+        avg_t_jud = sum(r["t_judging_ms"] for r in RESULTS_CACHE) / n
         passed = sum(1 for r in RESULTS_CACHE if r["overall"] >= MIN_OVERALL)
 
         print("\n")
@@ -163,7 +162,10 @@ def generate_report(request):
         print(f"  Date           : {timestamp}")
         print(f"  Test Cases     : {n}")
         print(f"  Passed         : {passed}/{n} ({passed/n*100:.0f}%)")
-        print(f"  Avg Latency    : {avg_latency:.0f} ms")
+        print("  -------------------------------------")
+        print(f"  Avg Retrieval  : {avg_t_ret:.2f} ms")
+        print(f"  Avg LLM Gen    : {avg_t_gen/1000:.2f} s")
+        print(f"  Avg Judging    : {avg_t_jud/1000:.2f} s")
         print("  -------------------------------------")
         print(f"  Ctx Relevance  : {avg_ctx:.3f}")
         print(f"  Faithfulness   : {avg_faith:.3f}")
@@ -192,3 +194,4 @@ def generate_report(request):
         print("=" * 70)
 
     request.addfinalizer(_write)
+

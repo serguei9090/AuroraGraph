@@ -150,6 +150,9 @@ def evaluate_prediction(prediction: dict) -> dict:
     Returns:
         dict with scores and an overall weighted average.
     """
+    import time
+    start_judge = time.time()
+
     query = prediction["query"]
     context = prediction.get("context", [])
     response = prediction.get("response", "")
@@ -166,9 +169,12 @@ def evaluate_prediction(prediction: dict) -> dict:
         3,
     )
 
+    judge_ms = (time.time() - start_judge) * 1000
+
     return {
         "context_relevance": ctx_rel,
         "faithfulness": faith,
         "answer_relevance": ans_rel,
         "overall_score": overall,
+        "judge_ms": round(judge_ms, 2),
     }

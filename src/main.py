@@ -6,12 +6,17 @@ import time
 
 import fitz  # PyMuPDF
 import ollama
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 class AuraGraphJIT:
-    def __init__(self, db_path: str = "auragraph_jit.db", model_name: str = "llama3.1:8b"):
+    def __init__(self, db_path: str = "auragraph_jit.db", model_name: str = None):
         self.db_path = db_path
-        self.model_name = model_name
+        self.model_name = model_name or os.getenv("AURA_MODEL", "llama3.1:8b")
+        self.fts5_limit = int(os.getenv("FTS5_MATCH_LIMIT", 15))
+        self.fts5_snippet_words = int(os.getenv("FTS5_SNIPPET_WORDS", 100))
         self.conn = sqlite3.connect(self.db_path)
         self._init_db()
 
@@ -128,13 +133,12 @@ class AuraGraphJIT:
 
         # FTS5 Query using snippet()
         # snippet(table_name, column_index, start_tag, end_tag, ellipsis, max_tokens)
-        # Column 2 is 'content'. This pulls the EXACT 100 words surrounding the match!
-        sql_query = """
-            SELECT filename, page_num, snippet(anchors, 2, '**', '**', '...', 100)
+        sql_query = f"""
+            SELECT filename, page_num, snippet(anchors, 2, '**', '**', '...', {self.fts5_snippet_words})
             FROM anchors 
             WHERE anchors MATCH ? 
             ORDER BY rank 
-            LIMIT 15
+            LIMIT {self.fts5_limit}
         """
 
         # Try exact AND matching first
@@ -201,7 +205,7 @@ class AuraGraphJIT:
         Programmatic version of query() for automated evaluation.
         Returns a structured dict instead of printing to console.
         """
-        start_ms = time.time()
+        start_retrieval = time.time()
 
         stop_words = {
             'what', 'were', 'done', 'for', 'all', 'time', 'the', 'and',
@@ -217,19 +221,20 @@ class AuraGraphJIT:
             "context": [],
             "response": "",
             "sources": [],
-            "latency_ms": 0,
+            "retrieval_ms": 0,
+            "generation_ms": 0,
         }
 
         if not terms:
             return empty_result
 
         cursor = self.conn.cursor()
-        sql_query = """
-            SELECT filename, page_num, snippet(anchors, 2, '**', '**', '...', 100)
+        sql_query = f"""
+            SELECT filename, page_num, snippet(anchors, 2, '**', '**', '...', {self.fts5_snippet_words})
             FROM anchors
             WHERE anchors MATCH ?
             ORDER BY rank
-            LIMIT 15
+            LIMIT {self.fts5_limit}
         """
 
         match_query = " AND ".join(terms)
@@ -247,7 +252,10 @@ class AuraGraphJIT:
             except sqlite3.OperationalError:
                 results = []
 
+        retrieval_ms = (time.time() - start_retrieval) * 1000
+
         if not results:
+            empty_result["retrieval_ms"] = round(retrieval_ms, 2)
             return empty_result
 
         evidence_blocks = []
@@ -277,6 +285,7 @@ class AuraGraphJIT:
         DO NOT hallucinate or substitute technologies.
         """
 
+        start_gen = time.time()
         resp = ollama.generate(
             model=self.model_name,
             prompt=prompt,
@@ -287,15 +296,15 @@ class AuraGraphJIT:
             ),
             stream=False,
         )
-
-        latency = (time.time() - start_ms) * 1000
+        generation_ms = (time.time() - start_gen) * 1000
 
         return {
             "query": user_query,
             "context": evidence_blocks,
             "response": resp["response"],
             "sources": sources,
-            "latency_ms": round(latency, 2),
+            "retrieval_ms": round(retrieval_ms, 2),
+            "generation_ms": round(generation_ms, 2),
         }
 
 if __name__ == "__main__":

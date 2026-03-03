@@ -22,12 +22,21 @@ def aura():
     Session-scoped AuraGraphJIT instance.
     Creates a fresh eval database and ingests the test_docs/ folder
     so every test runs against our controlled, known content.
-    """
-    # Remove stale eval DB so we always start clean
-    if os.path.exists(EVAL_DB_PATH):
-        os.remove(EVAL_DB_PATH)
 
-    engine = AuraGraphJIT(db_path=EVAL_DB_PATH, model_name="llama3.1:8b")
+    On Windows, if a previous process left the DB locked, we gracefully
+    skip the cleanup and reuse it (ingestion is idempotent via file_tracking).
+    """
+    # Try to remove stale eval DB so we always start clean
+    if os.path.exists(EVAL_DB_PATH):
+        try:
+            os.remove(EVAL_DB_PATH)
+        except PermissionError:
+            print(
+                f"\n[!] Could not delete {EVAL_DB_PATH} (file locked by another process). "
+                "Reusing existing DB — this is safe because ingestion is idempotent."
+            )
+
+    engine = AuraGraphJIT(db_path=EVAL_DB_PATH, model_name=None)
 
     # Ingest our controlled test documents
     if os.path.isdir(TEST_DOCS_DIR):

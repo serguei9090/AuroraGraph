@@ -3,175 +3,420 @@
     "id": "HIST-001",
     "category": "history_exact_fact",
     "query": "When did the Western Roman Empire fall and who deposed the last emperor?",
-    "expected_keywords": ["Romulus Augustulus", "Odoacer", "476"],
+    "expected_keywords": [
+      "Romulus Augustulus",
+      "Odoacer",
+      "476"
+    ],
     "ground_truth": "The Western Roman Empire fell on September 4, 476 AD when Germanic chieftain Odoacer deposed Romulus Augustulus, who was 16 years old."
   },
   {
     "id": "HIST-002",
     "category": "history_exact_fact",
     "query": "What ransom did Alaric demand during the Sack of Rome in 410 AD?",
-    "expected_keywords": ["Alaric", "gold", "silver", "pepper"],
+    "expected_keywords": [
+      "Alaric",
+      "gold",
+      "silver",
+      "pepper"
+    ],
     "ground_truth": "Alaric demanded 5,000 pounds of gold, 30,000 pounds of silver, 4,000 silken tunics, 3,000 hides dyed scarlet, and 3,000 pounds of pepper."
   },
   {
     "id": "HIST-003",
     "category": "history_exact_fact",
     "query": "What was the population and GDP of the Roman Empire at its peak under Trajan?",
-    "expected_keywords": ["Trajan", "70 million", "43.4 billion"],
+    "expected_keywords": [
+      "Trajan",
+      "70 million",
+      "43.4 billion"
+    ],
     "ground_truth": "Under Emperor Trajan (98-117 AD), the Roman Empire had a GDP equivalent of $43.4 billion and a population of approximately 70 million people, with Rome housing roughly 1.2 million inhabitants."
   },
   {
     "id": "HIST-004",
     "category": "history_exact_fact",
     "query": "How did the Fall of Constantinople happen and when?",
-    "expected_keywords": ["Constantinople", "1453", "Mehmed", "53-day"],
+    "expected_keywords": [
+      "Constantinople",
+      "1453",
+      "Mehmed",
+      "53-day"
+    ],
     "ground_truth": "Constantinople fell on May 29, 1453 when Ottoman Sultan Mehmed II conquered the city after a 53-day siege using cannons that fired 600-pound stone balls."
   },
   {
     "id": "HIST-005",
     "category": "history_exact_fact",
     "query": "What was the Edict on Maximum Prices and who enacted it?",
-    "expected_keywords": ["Diocletian", "301 AD", "1,200", "prices"],
+    "expected_keywords": [
+      "Diocletian",
+      "301 AD",
+      "1,200",
+      "prices"
+    ],
     "ground_truth": "Emperor Diocletian enacted the Edict on Maximum Prices in 301 AD, setting fixed prices for over 1,200 goods and services. The penalty for exceeding these prices was death."
   },
   {
     "id": "MATH-001",
     "category": "math_exact_value",
     "query": "What is the exact value of the Golden Ratio phi?",
-    "expected_keywords": ["Golden Ratio", "1.6180339887", "phi"],
+    "expected_keywords": [
+      "Golden Ratio",
+      "1.6180339887",
+      "phi"
+    ],
     "ground_truth": "The Golden Ratio phi equals (1 + sqrt(5)) / 2, approximately 1.6180339887."
   },
   {
     "id": "MATH-002",
     "category": "math_exact_value",
     "query": "What is the compound interest result for $10,000 at 7.5% compounded monthly for 20 years?",
-    "expected_keywords": ["compound interest", "44,677.44", "34,677.44"],
+    "expected_keywords": [
+      "compound interest",
+      "44,677.44",
+      "34,677.44"
+    ],
     "ground_truth": "Investing $10,000 at 7.5% annual interest compounded monthly for 20 years yields $44,677.44. The total interest earned is $34,677.44."
   },
   {
     "id": "MATH-003",
     "category": "math_exact_value",
     "query": "What is the average speed for a round trip if a train goes 120 km/h one way and 80 km/h back with a 240 km distance?",
-    "expected_keywords": ["96 km/h", "average speed", "round trip"],
+    "expected_keywords": [
+      "96 km/h",
+      "average speed",
+      "round trip"
+    ],
     "ground_truth": "The average speed is 96 km/h (480 total km / 5 hours), NOT the arithmetic mean of 100 km/h."
   },
   {
     "id": "MATH-004",
     "category": "math_exact_value",
     "query": "Who discovered Euler's number and when? What is its value?",
-    "expected_keywords": ["Euler", "Bernoulli", "1683", "2.7182818284"],
+    "expected_keywords": [
+      "Euler",
+      "Bernoulli",
+      "1683",
+      "2.7182818284"
+    ],
     "ground_truth": "Euler's number e equals approximately 2.7182818284. It was first discovered by Jacob Bernoulli in 1683 while studying compound interest."
   },
   {
     "id": "MATH-005",
     "category": "math_exact_value",
     "query": "What is the probability example for Bayes' Theorem about disease testing?",
-    "expected_keywords": ["Bayes", "0.98%", "1 in 10,000", "99%"],
+    "expected_keywords": [
+      "Bayes",
+      "0.98%",
+      "1 in 10,000",
+      "99%"
+    ],
     "ground_truth": "If a disease affects 1 in 10,000 people and a test is 99% accurate, a positive result only gives a 0.98% chance of actually having the disease."
   },
   {
     "id": "CODE-001",
     "category": "code_specific_fact",
     "query": "Who wrote the Gang of Four Design Patterns book and what is its ISBN?",
-    "expected_keywords": ["Gang of Four", "Gamma", "Helm", "Johnson", "Vlissides", "0-201-63361-2"],
+    "expected_keywords": [
+      "Gang of Four",
+      "Gamma",
+      "Helm",
+      "Johnson",
+      "Vlissides",
+      "0-201-63361-2"
+    ],
     "ground_truth": "The Gang of Four (Gamma, Helm, Johnson, and Vlissides) published 'Design Patterns: Elements of Reusable Object-Oriented Software' in 1994 by Addison-Wesley with ISBN 0-201-63361-2."
   },
   {
     "id": "CODE-002",
     "category": "code_specific_fact",
     "query": "What are the Netflix microservices migration details and results?",
-    "expected_keywords": ["Netflix", "2009", "2012", "700", "99.99%"],
+    "expected_keywords": [
+      "Netflix",
+      "2009",
+      "2012",
+      "700",
+      "99.99%"
+    ],
     "ground_truth": "Netflix migrated from monolith to microservices from 2009 to 2012, growing to over 700 microservices. Deployment frequency went from weekly to thousands per day, and availability improved from 99.7% to 99.99%."
   },
   {
     "id": "CODE-003",
     "category": "code_specific_fact",
     "query": "What is the default maxListeners limit in Node.js EventEmitter?",
-    "expected_keywords": ["maxListeners", "10", "Node.js", "Observer"],
+    "expected_keywords": [
+      "maxListeners",
+      "10",
+      "Node.js",
+      "Observer"
+    ],
     "ground_truth": "The default maxListeners in Node.js EventEmitter is 10. Exceeding it triggers a MaxListenersExceededWarning."
   },
   {
     "id": "CODE-004",
     "category": "code_specific_fact",
     "query": "How many disk reads does a B-tree index need for 10 million rows?",
-    "expected_keywords": ["B-tree", "3-4", "10 million", "500"],
+    "expected_keywords": [
+      "B-tree",
+      "3-4",
+      "10 million",
+      "500"
+    ],
     "ground_truth": "A B-tree index lookup for 10 million rows typically requires 3-4 disk reads. A B-tree with branching factor 500 can store 500 million keys in 3 levels."
   },
   {
     "id": "CODE-005",
     "category": "code_specific_fact",
     "query": "When was the Python decorator syntax introduced and what PEP defined it?",
-    "expected_keywords": ["PEP 318", "September 2, 2004", "decorator"],
+    "expected_keywords": [
+      "PEP 318",
+      "September 2, 2004",
+      "decorator"
+    ],
     "ground_truth": "Python decorator syntax (@decorator) was introduced in PEP 318, accepted on September 2, 2004."
   },
   {
     "id": "SEC-001",
     "category": "security_technical",
     "query": "What are the key sizes and number of rounds for AES encryption?",
-    "expected_keywords": ["AES", "128-bit", "192-bit", "256-bit", "10", "12", "14"],
+    "expected_keywords": [
+      "AES",
+      "128-bit",
+      "192-bit",
+      "256-bit",
+      "10",
+      "12",
+      "14"
+    ],
     "ground_truth": "AES supports 128-bit (10 rounds), 192-bit (12 rounds), and 256-bit (14 rounds). AES-256 is used for TOP SECRET classified information."
   },
   {
     "id": "SEC-002",
     "category": "security_technical",
     "query": "What was the Log4Shell vulnerability and what versions were affected?",
-    "expected_keywords": ["Log4Shell", "CVE-2021-44228", "CVSS 10.0", "2.14.1"],
+    "expected_keywords": [
+      "Log4Shell",
+      "CVE-2021-44228",
+      "CVSS 10.0",
+      "2.14.1"
+    ],
     "ground_truth": "Log4Shell (CVE-2021-44228), discovered December 9, 2021, affected Log4j versions 2.0-beta9 through 2.14.1 with a CVSS score of 10.0. Over 35,863 Java packages (8% of Maven Central) were affected. Fixed in 2.15.0."
   },
   {
     "id": "SEC-003",
     "category": "security_technical",
     "query": "What improvements did TLS 1.3 bring over TLS 1.2?",
-    "expected_keywords": ["TLS 1.3", "RFC 8446", "1-RTT", "0-RTT"],
+    "expected_keywords": [
+      "TLS 1.3",
+      "RFC 8446",
+      "1-RTT",
+      "0-RTT"
+    ],
     "ground_truth": "TLS 1.3 (RFC 8446, August 10, 2018) reduced handshake from 2 round trips to 1-RTT, added 0-RTT resumption, removed RSA key transport, static DH, compression, and RC4. Only AEAD ciphers allowed."
   },
   {
     "id": "SEC-004",
     "category": "security_technical",
     "query": "What was the Morris Worm and how many computers did it infect?",
-    "expected_keywords": ["Morris Worm", "1988", "6,000", "buffer overflow"],
+    "expected_keywords": [
+      "Morris Worm",
+      "1988",
+      "6,000",
+      "buffer overflow"
+    ],
     "ground_truth": "The Morris Worm of November 2, 1988 was the first major buffer overflow exploit, infecting approximately 6,000 computers (10% of the internet at that time)."
   },
   {
     "id": "SEC-005",
     "category": "security_technical",
     "query": "What are the NIST password recommendations from SP 800-63B?",
-    "expected_keywords": ["NIST", "800-63B", "8 characters", "64 characters"],
+    "expected_keywords": [
+      "NIST",
+      "800-63B",
+      "8 characters",
+      "64 characters"
+    ],
     "ground_truth": "NIST SP 800-63B recommends: minimum 8 characters for user passwords, minimum 6 for random passwords, max at least 64 characters, no composition rules, check against 100,000 common passwords, no forced rotation unless compromise evidence."
   },
   {
     "id": "NEG-001",
     "category": "negative_knowledge",
     "query": "What does the document say about quantum computing encryption?",
-    "expected_keywords": ["quantum"],
+    "expected_keywords": [
+      "quantum"
+    ],
     "ground_truth": "The documents do NOT contain information about quantum computing. The system must refuse to answer rather than hallucinate facts about quantum encryption."
   },
   {
     "id": "NEG-002",
     "category": "negative_knowledge",
     "query": "Describe the machine learning algorithms discussed in the documents.",
-    "expected_keywords": ["machine learning"],
+    "expected_keywords": [
+      "machine learning"
+    ],
     "ground_truth": "The documents do NOT contain information about machine learning algorithms. The system must state that no relevant information was found."
   },
   {
     "id": "CROSS-001",
     "category": "cross_document",
     "query": "What specific dates and events are mentioned across all documents in 1988 and 1994?",
-    "expected_keywords": ["1988", "1994", "Morris Worm", "Gang of Four"],
+    "expected_keywords": [
+      "1988",
+      "1994",
+      "Morris Worm",
+      "Gang of Four"
+    ],
     "ground_truth": "In 1988: The Morris Worm (November 2, 1988) was the first buffer overflow exploit. In 1994: The Gang of Four published Design Patterns book."
   },
   {
     "id": "CROSS-002",
     "category": "cross_document",
     "query": "What security-related numbers and statistics appear across the documents?",
-    "expected_keywords": ["134 million", "35,863", "4.35 million"],
+    "expected_keywords": [
+      "134 million",
+      "35,863",
+      "4.35 million"
+    ],
     "ground_truth": "The Heartland breach exposed 134 million credit cards. Log4Shell affected 35,863 Java packages. Buffer overflow incidents cost $4.35 million each on average."
   },
   {
     "id": "CROSS-003",
     "category": "cross_document",
     "query": "What historical dates and mathematical facts are mentioned about Archimedes?",
-    "expected_keywords": ["Archimedes", "287-212 BC", "pi", "3.1408"],
+    "expected_keywords": [
+      "Archimedes",
+      "287-212 BC",
+      "pi",
+      "3.1408"
+    ],
     "ground_truth": "Archimedes of Syracuse (287-212 BC) calculated pi to be between 3.1408 and 3.1429 using a 96-sided polygon."
+  },
+  {
+    "id": "FIN-001",
+    "category": "finance_aggregation",
+    "query": "What was the total net revenue, EPS, and operating margin for OmniCorp Global in FY2025 compared to FY2024?",
+    "expected_keywords": [
+      "14.2 billion",
+      "12.03",
+      "5.45",
+      "4.12",
+      "22.1%"
+    ],
+    "ground_truth": "FY2025 net revenue was $14.2 billion (up 18% from FY2024's $12.03 billion). EPS diluted climbed from $4.12 to $5.45. Operating margins expanded by 240 basis points to 22.1%."
+  },
+  {
+    "id": "FIN-002",
+    "category": "finance_aggregation",
+    "query": "Summarize the B2B AI software suite OmniMind's key metrics including CAC, LTV, and churn rate.",
+    "expected_keywords": [
+      "12,500",
+      "185,000",
+      "14.8x",
+      "1.2%"
+    ],
+    "ground_truth": "OmniMind's CAC was $12,500, LTV was $185,000, LTV:CAC ratio reached an industry-leading 14.8x, and churn rate dropped to 1.2% annually."
+  },
+  {
+    "id": "FIN-003",
+    "category": "finance_aggregation",
+    "query": "What were the factors causing the Consumer Hardware gross margin to shrink, and what was the margin?",
+    "expected_keywords": [
+      "29%",
+      "Neodymium",
+      "Dysprosium",
+      "silicon",
+      "15%"
+    ],
+    "ground_truth": "Hardware gross margin shrank from 34% to 29% due to a 15% increase in rare-earth metal costs (Neodymium/Dysprosium) and a 10% tariff hike on imported silicon wafers in October."
+  },
+  {
+    "id": "FIN-004",
+    "category": "finance_aggregation",
+    "query": "What were the board actions taken in November 2025 regarding share repurchases and dividends?",
+    "expected_keywords": [
+      "5 billion",
+      "12%",
+      "0.48",
+      "repurchase"
+    ],
+    "ground_truth": "In November 2025, the Board authorized a $5 billion share repurchase program and increased the quarterly dividend by 12% to $0.48 per share."
+  },
+  {
+    "id": "FIN-005",
+    "category": "finance_aggregation",
+    "query": "What is the forward guidance for full FY2026 revenue and CapEx?",
+    "expected_keywords": [
+      "16.5 billion",
+      "17.0",
+      "3.5",
+      "Reykjavik",
+      "Santiago"
+    ],
+    "ground_truth": "FY2026 projecting total revenue of $16.5B to $17.0B. CapEx expected to peak at $3.5 billion to build data centers in Reykjavik and Santiago."
+  },
+  {
+    "id": "ABS-001",
+    "category": "abstract_reasoning",
+    "query": "Explain the Gettier Problem, when it was published, and its impact on the JTB definition of knowledge.",
+    "expected_keywords": [
+      "1963",
+      "Justified True Belief",
+      "Smith",
+      "luck"
+    ],
+    "ground_truth": "Published in 1963, Gettier provided counterexamples (like Smith and the coins) showing that Justified True Belief (JTB) is not always knowledge because beliefs can be true due to luck."
+  },
+  {
+    "id": "ABS-002",
+    "category": "abstract_reasoning",
+    "query": "What is the key difference between Endurantism and Perdurantism regarding how objects persist?",
+    "expected_keywords": [
+      "Endurantism",
+      "Perdurantism",
+      "temporal parts",
+      "entirely present",
+      "four-dimensional"
+    ],
+    "ground_truth": "Endurantism claims an object is entirely present at every moment it exists. Perdurantism (Four-Dimensionalism) argues objects extend through time and have 'temporal parts' like temporal tree layers."
+  },
+  {
+    "id": "ABS-003",
+    "category": "abstract_reasoning",
+    "query": "Summarize Hilary Putnam's semantic externalism and the Twin Earth thought experiment.",
+    "expected_keywords": [
+      "Hilary Putnam",
+      "1975",
+      "XYZ",
+      "H2O",
+      "in the head"
+    ],
+    "ground_truth": "Putnam's 1975 essay argued 'meanings just ain\\'t in the head.' In the Twin Earth experiment, 'water' refers to H2O on Earth and XYZ on Twin Earth, meaning words refer to external substances despite identical psychological states."
+  },
+  {
+    "id": "ABS-004",
+    "category": "abstract_reasoning",
+    "query": "What is Husserl's concept of intentionality and how did Heidegger expand on it with Dasein?",
+    "expected_keywords": [
+      "intentionality",
+      "Husserl",
+      "Heidegger",
+      "Dasein",
+      "ready-to-hand"
+    ],
+    "ground_truth": "Husserl defined intentionality as consciousness always being 'directed toward' something. Heidegger (1927) expanded this with 'Dasein', arguing we are thrown into the world, engaging with tools (ready-to-hand) rather than objectively observing them."
+  },
+  {
+    "id": "ABS-005",
+    "category": "abstract_reasoning",
+    "query": "Explain the Ship of Theseus thought experiment as recorded by Plutarch and expanded by Hobbes.",
+    "expected_keywords": [
+      "Plutarch",
+      "Hobbes",
+      "decay",
+      "second ship",
+      "planks"
+    ],
+    "ground_truth": "Plutarch asked if a ship whose planks are entirely replaced over time is the same ship. Hobbes asked what if someone gathered the discarded planks to build a second ship, challenging continuity of form vs matter."
   }
 ]
