@@ -1,5 +1,10 @@
 # AuroraGraph9D
+## This is a personal learning project created for educational purposes and to explore different code concepts with ai concepts. 
 
+* **Status:** Personal sandbox / Portfolio piece.
+* **License:** This project is open-source and available for public educational use under the MIT License.
+* **Purpose:** Academic research and technical skill development.
+* 
 > [!CAUTION]
 > ### ⚠️ EXPERIMENTAL PROJECT — NOT FOR USAGE
 > This codebase is a purely experimental research prototype. It is **NOT** intended for production use, general deployment, or any mission-critical applications. The core logic, including metabolic filtering and 9D synapses, is subject to breaking changes without notice.
