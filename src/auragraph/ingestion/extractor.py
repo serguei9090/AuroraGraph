@@ -5,7 +5,9 @@ import spacy
 try:
     nlp = spacy.load("en_core_web_sm")
 except OSError:
-    print("[!] Spacy model 'en_core_web_sm' not found. Run: uv run python -m spacy download en_core_web_sm")
+    # We do not crash here, but users need this for triple extraction
+    print("\n[!] AuroraGraph Warning: SpaCy model 'en_core_web_sm' is not installed.")
+    print("[!] Run: python -m spacy download en_core_web_sm\n")
     nlp = None
 
 

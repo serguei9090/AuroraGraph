@@ -240,6 +240,18 @@ uv run python code_examples/chat_test.py
 
 ---
 
+## 🔤 NLP Model Requirement
+
+AuroraGraph uses **SpaCy** for high-accuracy triple extraction. Because PyPI does not allow direct URL dependencies, you must download the NLP model manually after installing the library:
+
+```bash
+python -m spacy download en_core_web_sm
+```
+
+If you skip this, AuroraGraph will still function but will use fallback logic for triple extraction.
+
+---
+
 ## 🌍 Environment Reference
 
 Copy `.env.example` → `.env` and set:

@@ -31,7 +31,6 @@ dependencies = [
     "prometheus-client>=0.20.0",
     "fastapi>=0.110.0",
     "spacy>=3.8.11",
-    "en_core_web_sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl",
     "pymupdf>=1.27.1",
     "numpy>=2.0.0",
     "colorama>=0.4.6",
