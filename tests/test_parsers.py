@@ -64,4 +64,3 @@ def test_extract_triples():
             assert "predicate" in t
             assert "object" in t
             assert t["predicate"] == "JUMP"
-

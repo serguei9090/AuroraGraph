@@ -14,21 +14,25 @@ def mock_db():
     db = MagicMock(spec=BaseGraphDB)
     return db
 
+
 @pytest.fixture
 def mock_llm():
     llm = MagicMock(spec=BaseLLMProvider)
     return llm
+
 
 @pytest.fixture
 def mock_embedder():
     embedder = MagicMock(spec=BaseEmbeddingProvider)
     return embedder
 
+
 def test_engine_initialization(mock_db, mock_llm, mock_embedder):
     engine = AuroraGraphEngine(db=mock_db, llm=mock_llm, embedder=mock_embedder)
     assert engine.db == mock_db
     assert engine.llm == mock_llm
     assert engine.embedder == mock_embedder
+
 
 def test_engine_predict_logic(mock_db, mock_llm, mock_embedder):
     # Setup mock returns
@@ -47,7 +51,6 @@ def test_engine_predict_logic(mock_db, mock_llm, mock_embedder):
     assert "generation_ms" in result
 
 
-
 def test_sqlite_db_basic(tmp_path):
     db_file = tmp_path / "test.db"
     db = SQLiteFTS5DB(str(db_file))
@@ -64,10 +67,13 @@ def test_sqlite_db_basic(tmp_path):
     assert "content" in results[0]["text"]
     assert results[0]["filename"] == "doc1.txt"
 
+
 def test_engine_ingest_logic(mock_db, mock_embedder, tmp_path):
     # Setup files
     doc = tmp_path / "doc.txt"
-    doc.write_text("This is a valid piece of text that should pass the metabolic filter and be ingested.", encoding="utf-8")
+    doc.write_text(
+        "This is a valid piece of text that should pass the metabolic filter and be ingested.", encoding="utf-8"
+    )
 
     mock_db.is_ingested.return_value = False
 
@@ -75,6 +81,7 @@ def test_engine_ingest_logic(mock_db, mock_embedder, tmp_path):
     engine.ingest_folder(str(tmp_path))
 
     assert mock_db.insert_document.called
+
 
 def test_engine_custom_prompt(mock_db, mock_llm, mock_embedder):
     mock_db.search.return_value = [{"filename": "test.txt", "page": 1, "text": "evidence text"}]
@@ -90,5 +97,3 @@ def test_engine_custom_prompt(mock_db, mock_llm, mock_embedder):
     # Verify generate was called with formatted prompt
     expected_prompt = "Query: quantum mechanics, Evidence: SOURCE: test.txt (Page 1)\nTEXT: evidence text\n"
     mock_llm.generate.assert_called_with(expected_prompt, ANY, stream=False)
-
-

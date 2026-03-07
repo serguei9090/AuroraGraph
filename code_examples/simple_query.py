@@ -32,10 +32,7 @@ def main():
 
     # Initialize Engine
     # We use KuzuDB and FastEmbedProvider (defaulting to CPU for compatibility)
-    engine = AuroraGraphEngine(
-        db=KuzuDB(str(db_path)),
-        embedder=FastEmbedProvider(device="cpu")
-    )
+    engine = AuroraGraphEngine(db=KuzuDB(str(db_path)), embedder=FastEmbedProvider(device="cpu"))
 
     # Get query from CLI or use default
     query_text = " ".join(sys.argv[1:]) if len(sys.argv) > 1 else "What is the AWS Shared Responsibility Model?"
@@ -56,6 +53,7 @@ def main():
         print("\nSources:")
         for source in result["sources"]:
             print(f"- {source['filename']} (Page {source.get('page', 'N/A')})")
+
 
 if __name__ == "__main__":
     main()

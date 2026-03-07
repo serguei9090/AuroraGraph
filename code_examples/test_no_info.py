@@ -18,5 +18,6 @@ def test_no_info():
     engine.query("ZXYWVU987654321")
     print("--- TEST END ---")
 
+
 if __name__ == "__main__":
     test_no_info()

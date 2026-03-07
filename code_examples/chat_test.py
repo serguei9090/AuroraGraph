@@ -12,7 +12,7 @@ sys.path.append(str(Path(__file__).resolve().parent.parent / "src"))
 
 # Force utf-8 stdout globally if possible to avoid charmap crashes from fastembed
 try:
-    sys.stdout.reconfigure(encoding='utf-8')
+    sys.stdout.reconfigure(encoding="utf-8")
 except Exception:
     pass
 
@@ -34,7 +34,6 @@ LLM_MODEL = os.getenv("AURA_MODEL", "llama3.1:8b")
 AUDIT_TITLE = "AURORAGRAPH Graph AUDIT"
 
 
-
 class ChatTerminal:
     """A chat terminal that uses AuroraGraph for answering based on ingested knowledge."""
 
@@ -47,7 +46,7 @@ class ChatTerminal:
         start_init = time.time()
         try:
             self.engine = AuroraGraphEngine(db=KuzuDB(str(db_path)))
-            print(f"[*] Engine initialization took {(time.time() - start_init)*1000:.2f}ms")
+            print(f"[*] Engine initialization took {(time.time() - start_init) * 1000:.2f}ms")
         except Exception as e:
             print(f"[!] Critical error during initialization: {e}")
             sys.exit(1)
@@ -66,17 +65,20 @@ class ChatTerminal:
             print(Fore.MAGENTA + "\n[GRAPH DB EVIDENCE RETRIEVED]" + Style.RESET_ALL)
             if sources:
                 for idx, src in enumerate(sources):
-                    print(Fore.GREEN + f"  → Source {idx+1}: {src['filename']} (Page {src.get('page', 'N/A')})" + Style.RESET_ALL)
+                    print(
+                        Fore.GREEN
+                        + f"  → Source {idx + 1}: {src['filename']} (Page {src.get('page', 'N/A')})"
+                        + Style.RESET_ALL
+                    )
             else:
                 print(Fore.RED + "  → No relevant context found in the graph database." + Style.RESET_ALL)
-
 
             if not isinstance(prediction["response"], str):
                 print(Fore.YELLOW + "\n" + "=" * 80)
 
                 # Attempt to set stdout to UTF-8 to prevent 'charmap' Windows errors
                 try:
-                    sys.stdout.reconfigure(encoding='utf-8')
+                    sys.stdout.reconfigure(encoding="utf-8")
                 except Exception:
                     pass
 
@@ -95,13 +97,21 @@ class ChatTerminal:
                     try:
                         print(first_chunk, end="", flush=True)
                     except UnicodeEncodeError:
-                        print(first_chunk.encode(sys.stdout.encoding, errors='replace').decode(sys.stdout.encoding), end="", flush=True)
+                        print(
+                            first_chunk.encode(sys.stdout.encoding, errors="replace").decode(sys.stdout.encoding),
+                            end="",
+                            flush=True,
+                        )
 
                     for chunk in generator:
                         try:
                             print(chunk, end="", flush=True)
                         except UnicodeEncodeError:
-                            print(chunk.encode(sys.stdout.encoding, errors='replace').decode(sys.stdout.encoding), end="", flush=True)
+                            print(
+                                chunk.encode(sys.stdout.encoding, errors="replace").decode(sys.stdout.encoding),
+                                end="",
+                                flush=True,
+                            )
 
                 except StopIteration:
                     print(Fore.YELLOW + AUDIT_TITLE)
@@ -120,13 +130,17 @@ class ChatTerminal:
                 print(prediction["response"])
                 print("=" * 80 + Style.RESET_ALL)
 
-            print(Fore.BLUE + f"[*] Stats: Retrieval: {prediction['retrieval_ms']}ms | Generation: {prediction['generation_ms']}ms" + Style.RESET_ALL)
+            print(
+                Fore.BLUE
+                + f"[*] Stats: Retrieval: {prediction['retrieval_ms']}ms | Generation: {prediction['generation_ms']}ms"
+                + Style.RESET_ALL
+            )
 
         except Exception as e:
             print(f"[!] Query failed: {e}")
 
         end_query = time.time()
-        print(f"[*] Total query turnaround time: {(end_query - start_query)*1000:.2f}ms")
+        print(f"[*] Total query turnaround time: {(end_query - start_query) * 1000:.2f}ms")
 
         return ""
 

@@ -24,10 +24,7 @@ def main():
 
     # 2. Setup Engine
     # Note: KuzuDB creates the folder if it doesn't exist
-    engine = AuroraGraphEngine(
-        db=KuzuDB(db_path),
-        embedder=FastEmbedProvider(device="cpu")
-    )
+    engine = AuroraGraphEngine(db=KuzuDB(db_path), embedder=FastEmbedProvider(device="cpu"))
 
     # 3. Ingest
     print(f"Ingesting documents from {source_folder}...")
@@ -41,6 +38,7 @@ def main():
 
     print("\nIngestion complete!")
     print("You can now query your database using: uv run python code_examples/simple_query.py")
+
 
 if __name__ == "__main__":
     main()

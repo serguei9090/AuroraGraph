@@ -4,7 +4,7 @@ from pathlib import Path
 
 # Fix Windows Unicode Encode Errors early
 try:
-    sys.stdout.reconfigure(encoding='utf-8')
+    sys.stdout.reconfigure(encoding="utf-8")
 except Exception:
     pass
 
@@ -31,6 +31,7 @@ Use this context to answer:
 Please ignore Task 1 and Task 2. Just write me an elegant Haiku about the answer.
 """
 
+
 def main():
     if not os.path.exists(DB_PATH):
         print(f"Database not found at {DB_PATH}. Please run ingest_knowledge.py first.")
@@ -48,13 +49,9 @@ def main():
 
     print("--- CUSTOM HAIKU PROMPT ---")
     # Execute query using your own custom RAG instructions!
-    custom_result = engine.query(
-        query,
-        stream=False,
-        custom_system_prompt=my_system_prompt,
-        custom_prompt=my_prompt
-    )
+    custom_result = engine.query(query, stream=False, custom_system_prompt=my_system_prompt, custom_prompt=my_prompt)
     print(custom_result["response"])
+
 
 if __name__ == "__main__":
     main()

@@ -303,9 +303,7 @@ def main():
 
     try:
         with ThreadPoolExecutor(max_workers=workers) as executor:
-            future_to_file = {
-                executor.submit(ingest_file, f, engine, args.no_triples, args.force): f for f in files
-            }
+            future_to_file = {executor.submit(ingest_file, f, engine, args.no_triples, args.force): f for f in files}
             for future in as_completed(future_to_file):
                 res = future.result()
                 results.append(res)

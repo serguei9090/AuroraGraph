@@ -18,17 +18,22 @@ from auragraph import AuroraGraphEngine  # noqa: E402
 from auragraph.db.kuzu import KuzuDB  # noqa: E402
 
 try:
-    sys.stdout.reconfigure(encoding='utf-8')
+    sys.stdout.reconfigure(encoding="utf-8")
 except Exception:
     pass
 
 
-
 # Configuration
 DEFAULT_DB_PATH = "./comparison_graph"
-TEST_PDF_PATH = os.path.join(auragraph_dir, "code_examples", "knowledge", "AWS Certified Solutions Architect Study Guide  Associate (SAA-C03) Exam, 4th Edition (Ben Piper, David Clinton).pdf")
+TEST_PDF_PATH = os.path.join(
+    auragraph_dir,
+    "code_examples",
+    "knowledge",
+    "AWS Certified Solutions Architect Study Guide  Associate (SAA-C03) Exam, 4th Edition (Ben Piper, David Clinton).pdf",
+)
 QUERY = "You need to deploy multiple EC2 Linux instances that will provide your company with virtual private networks (VPNs) using software called OpenVPN. Which of the following will be the most efficient solutions? (Choose two.)"
 MODEL_NAME = os.getenv("AURA_MODEL", "llama3.1:8b")
+
 
 def evaluate_langchain():
     print("\n--- Running Option 1: LangChain + FAISS + SentenceTransformers ---")
@@ -72,8 +77,9 @@ def evaluate_langchain():
         "retrieve_sec": retrieve_time,
         "gen_sec": gen_time,
         "total_sec": ingest_time + retrieve_time + gen_time,
-        "answer": resp["response"]
+        "answer": resp["response"],
     }
+
 
 def evaluate_auragraph(db_path=DEFAULT_DB_PATH, skip_ingest=False):
     print("\n--- Running Option 2: AuroraGraph (Audit Prompt) ---")
@@ -107,9 +113,10 @@ def evaluate_auragraph(db_path=DEFAULT_DB_PATH, skip_ingest=False):
         "ingest_sec": ingest_time,
         "retrieve_sec": prediction["retrieval_ms"] / 1000.0,
         "gen_sec": prediction["generation_ms"] / 1000.0,
-        "total_sec": ingest_time + (prediction["retrieval_ms"]/1000) + (prediction["generation_ms"]/1000),
-        "answer": prediction["response"]
+        "total_sec": ingest_time + (prediction["retrieval_ms"] / 1000) + (prediction["generation_ms"] / 1000),
+        "answer": prediction["response"],
     }
+
 
 def evaluate_auragraph_simple(db_path=DEFAULT_DB_PATH):
     print("\n--- Running Option 3: AuroraGraph (Simple Fast Prompt) ---")
@@ -123,12 +130,13 @@ def evaluate_auragraph_simple(db_path=DEFAULT_DB_PATH):
 
     return {
         "system": "AuroraGraph (Fast Prompt)",
-        "ingest_sec": 0, # Already ingested by the previous step
+        "ingest_sec": 0,  # Already ingested by the previous step
         "retrieve_sec": prediction["retrieval_ms"] / 1000.0,
         "gen_sec": prediction["generation_ms"] / 1000.0,
-        "total_sec": 0 + (prediction["retrieval_ms"]/1000) + (prediction["generation_ms"]/1000),
-        "answer": prediction["response"]
+        "total_sec": 0 + (prediction["retrieval_ms"] / 1000) + (prediction["generation_ms"] / 1000),
+        "answer": prediction["response"],
     }
+
 
 def main():
     if not os.path.exists(TEST_PDF_PATH):
@@ -161,9 +169,15 @@ def main():
         f.write("| Metric | LangChain + FAISS | AuroraGraph (Audit Mode) | AuroraGraph (Fast Mode) |\n")
         f.write("|---|---|---|---|\n")
         f.write(f"| **Indexing Time** | {res1['ingest_sec']:.2f}s | **{res2['ingest_sec']:.2f}s** | *(Skipped)* |\n")
-        f.write(f"| **Retrieval Latency** | {res1['retrieve_sec']:.2f}s | **{res2['retrieve_sec']:.2f}s** | **{res3['retrieve_sec']:.2f}s** |\n")
-        f.write(f"| **Generation Latency** | {res1['gen_sec']:.2f}s | **{res2['gen_sec']:.2f}s** | **{res3['gen_sec']:.2f}s** |\n")
-        f.write(f"| **Total Pipeline (Query Only)** | {(res1['retrieve_sec'] + res1['gen_sec']):.2f}s | **{(res2['retrieve_sec'] + res2['gen_sec']):.2f}s** | **{(res3['retrieve_sec'] + res3['gen_sec']):.2f}s** |\n\n")
+        f.write(
+            f"| **Retrieval Latency** | {res1['retrieve_sec']:.2f}s | **{res2['retrieve_sec']:.2f}s** | **{res3['retrieve_sec']:.2f}s** |\n"
+        )
+        f.write(
+            f"| **Generation Latency** | {res1['gen_sec']:.2f}s | **{res2['gen_sec']:.2f}s** | **{res3['gen_sec']:.2f}s** |\n"
+        )
+        f.write(
+            f"| **Total Pipeline (Query Only)** | {(res1['retrieve_sec'] + res1['gen_sec']):.2f}s | **{(res2['retrieve_sec'] + res2['gen_sec']):.2f}s** | **{(res3['retrieve_sec'] + res3['gen_sec']):.2f}s** |\n\n"
+        )
 
         f.write("## 🧠 Answer Quality\n\n")
         f.write("### 1. LangChain + FAISS Answer:\n")
@@ -176,6 +190,7 @@ def main():
         f.write(f"> {res3['answer'].strip()}\n\n")
 
     print(f"\nComparison complete! Wrote results to {report_path}")
+
 
 if __name__ == "__main__":
     main()
