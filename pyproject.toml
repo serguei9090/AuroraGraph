@@ -37,10 +37,10 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/serguei9090/AuroraGraph9D"
-Repository = "https://github.com/serguei9090/AuroraGraph9D"
-"Bug Tracker" = "https://github.com/serguei9090/AuroraGraph9D/issues"
-Changelog = "https://github.com/serguei9090/AuroraGraph9D/blob/main/CHANGELOG.md"
+Homepage = "https://github.com/serguei9090/AuroraGraph"
+Repository = "https://github.com/serguei9090/AuroraGraph"
+"Bug Tracker" = "https://github.com/serguei9090/AuroraGraph/issues"
+Changelog = "https://github.com/serguei9090/AuroraGraph/blob/main/CHANGELOG.md"
 
 [project.scripts]
 auragraph = "auragraph.cli:main"

@@ -1,5 +1,5 @@
 """
-AuroraGraph9D — LLM-as-a-Judge Evaluation Engine.
+AuroraGraph — LLM-as-a-Judge Evaluation Engine.
 
 Uses a local Ollama model to grade system outputs on the RAG Triad:
   1. Context Relevance  — Did FTS5 pull the right paragraphs?

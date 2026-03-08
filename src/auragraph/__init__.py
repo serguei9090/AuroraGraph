@@ -11,7 +11,7 @@ Quickstart::
     engine.ingest("./my_docs")
     engine.query("What are the core revenue drivers?")
 
-GitHub: https://github.com/serguei9090/AuroraGraph9D
+GitHub: https://github.com/serguei9090/AuroraGraph
 """
 
 __version__ = "0.1.1"

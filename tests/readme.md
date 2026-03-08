@@ -1,6 +1,6 @@
-# AuroraGraph9D Test Suite
+# AuroraGraph Test Suite
 
-This directory contains the testing and evaluation infrastructure for AuroraGraph9D. The suite is designed to balance fast developer feedback with deep semantic verification.
+This directory contains the testing and evaluation infrastructure for AuroraGraph. The suite is designed to balance fast developer feedback with deep semantic verification.
 
 ## 🧪 Test Categories
 

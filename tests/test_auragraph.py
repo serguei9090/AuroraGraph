@@ -1,5 +1,5 @@
 """
-AuroraGraph9D - Automated Evaluation Suite
+AuroraGraph - Automated Evaluation Suite
 ===========================================
 
 Runs every test case from golden_dataset.json through AuraGraphJIT.predict(),
@@ -173,7 +173,7 @@ def generate_report(request):
 
         print("\n")
         print("=" * 70)
-        print("  AURORAGRAPH 9D - EVALUATION SCORECARD")
+        print("  AURORAGRAPH - EVALUATION SCORECARD")
         print("=" * 70)
         print(f"  Date           : {timestamp}")
         print(f"  Test Cases     : {n}")

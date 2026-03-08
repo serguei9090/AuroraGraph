@@ -54,8 +54,8 @@ pip install "auragraph[cuda]"
 Requires: **uv** · **Rust toolchain** (`rustup.rs`)
 
 ```bash
-git clone https://github.com/serguei9090/AuroraGraph9D.git
-cd AuroraGraph9D
+git clone https://github.com/serguei9090/AuroraGraph.git
+cd AuroraGraph
 cp .env.example .env   # edit as needed
 ```
 

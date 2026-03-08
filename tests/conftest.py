@@ -1,4 +1,4 @@
-"""Shared pytest fixtures for the AuroraGraph9D eval suite."""
+"""Shared pytest fixtures for the AuroraGraph eval suite."""
 
 import json
 import os

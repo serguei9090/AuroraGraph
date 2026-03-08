@@ -401,4 +401,4 @@ only one `KuzuDB` instance per database folder at a time.
 
 ## License
 
-MIT — [github.com/serguei9090/AuroraGraph9D](https://github.com/serguei9090/AuroraGraph9D)
+MIT — [github.com/serguei9090/AuroraGraph](https://github.com/serguei9090/AuroraGraph)
